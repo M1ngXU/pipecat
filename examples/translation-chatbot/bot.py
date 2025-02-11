@@ -24,7 +24,7 @@ from pipecat.frames.frames import (
 )
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
-from pipecat.pipeline.task import PipelineTask
+from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 from pipecat.processors.transcript_processor import TranscriptProcessor
@@ -34,6 +34,7 @@ from pipecat.services.openai import OpenAILLMService
 from pipecat.transports.services.daily import (
     DailyParams,
     DailyTransport,
+    DailyTransportMessageFrame,
 )
 
 load_dotenv(override=True)
@@ -122,6 +123,7 @@ class TranscriptHandler:
                 "text": msg.content,
             }
             logger.info(f"{timestamp}{msg.role}: {msg.content}")
+            await processor.push_frame(DailyTransportMessageFrame(message))
 
 
 async def main():
@@ -174,13 +176,21 @@ async def main():
                 tp,
                 llm,
                 tts,
+                transcript.assistant(),  # Assistant transcripts
                 transport.output(),
                 context_aggregator.assistant(),
-                transcript.assistant(),  # Assistant transcripts
             ]
         )
 
-        task = PipelineTask(pipeline)
+        task = PipelineTask(
+            pipeline,
+            PipelineParams(
+                allow_interruptions=False,  # We don't want to interrupt the translator bot
+                enable_metrics=True,
+                enable_usage_metrics=True,
+                report_only_initial_ttfb=True,
+            ),
+        )
 
         @transport.event_handler("on_first_participant_joined")
         async def on_first_participant_joined(transport, participant):
