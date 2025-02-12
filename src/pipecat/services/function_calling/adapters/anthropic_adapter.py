@@ -16,4 +16,12 @@ class AnthropicFunctionAdapter:
 
         :return: Anthropic formatted function call definition.
         """
-        return function_schema.to_dict()
+        return {
+            "name": function_schema.name,
+            "description": function_schema.description,
+            "input_schema": {
+                "type": "object",
+                "properties": function_schema.properties,
+                "required": function_schema.required,
+            },
+        }

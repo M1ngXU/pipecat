@@ -16,8 +16,11 @@ class GeminiFunctionAdapter:
 
         :return: Gemini formatted function call definition.
         """
-        return {
-                "function_declarations": [
-                    function_schema.to_dict()
-                ]
-            }
+        return function_schema.to_default_dict()
+
+        #TODO: this is going to be used when converting a list of FunctionSchema
+        #return {
+        #        "function_declarations": [
+        #            function_schema.to_default_dict()
+        #        ]
+        #    }

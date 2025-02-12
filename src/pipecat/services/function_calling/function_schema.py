@@ -21,7 +21,7 @@ class FunctionSchema:
         self.properties = properties
         self.required = required
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_default_dict(self) -> Dict[str, Any]:
         """Converts the function schema to a dictionary.
 
         :return: Dictionary representation of the function schema.

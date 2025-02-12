@@ -18,5 +18,5 @@ class OpenAIFunctionAdapter:
         """
         return ChatCompletionToolParam(
             type="function",
-            function=function_schema.to_dict()
+            function=function_schema.to_default_dict()
         )
