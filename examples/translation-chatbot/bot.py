@@ -27,6 +27,11 @@ from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
+from pipecat.processors.frameworks.rtvi import (
+    RTVIBotTranscriptionProcessor,
+    RTVISpeakingProcessor,
+    RTVIUserTranscriptionProcessor,
+)
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.services.cartesia import CartesiaTTSService
 from pipecat.services.deepgram import DeepgramSTTService
@@ -123,7 +128,6 @@ class TranscriptHandler:
                 "text": msg.content,
             }
             logger.info(f"{timestamp}{msg.role}: {msg.content}")
-            await processor.push_frame(DailyTransportMessageFrame(message))
 
 
 async def main():
@@ -168,16 +172,24 @@ async def main():
         async def on_transcript_update(processor, frame):
             await transcript_handler.on_transcript_update(processor, frame)
 
+        # Create processors
+        rtvi_speaking = RTVISpeakingProcessor()  # Speaking state changes
+        rtvi_user_transcription = RTVIUserTranscriptionProcessor()  # User speech transcription
+        rtvi_bot_transcription = RTVIBotTranscriptionProcessor()  # Bot speech transcription
+
         pipeline = Pipeline(
             [
                 transport.input(),
+                rtvi_speaking,
                 stt,
                 transcript.user(),  # User transcripts
+                rtvi_user_transcription,
                 tp,
                 llm,
+                rtvi_bot_transcription,
                 tts,
-                transcript.assistant(),  # Assistant transcripts
                 transport.output(),
+                transcript.assistant(),
                 context_aggregator.assistant(),
             ]
         )
