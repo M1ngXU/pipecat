@@ -8,7 +8,9 @@ from typing import Any, Dict, List
 
 
 class FunctionSchema:
-    def __init__(self, name: str, description: str, properties: Dict[str, Any], required: List[str]) -> None:
+    def __init__(
+        self, name: str, description: str, properties: Dict[str, Any], required: List[str]
+    ) -> None:
         """Standardized function schema representation.
 
         :param name: Name of the function.

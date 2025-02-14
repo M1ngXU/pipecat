@@ -16,7 +16,4 @@ class OpenAIFunctionAdapter:
 
         :return: OpenAI formatted function call definition.
         """
-        return ChatCompletionToolParam(
-            type="function",
-            function=function_schema.to_default_dict()
-        )
+        return ChatCompletionToolParam(type="function", function=function_schema.to_default_dict())
