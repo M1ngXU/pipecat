@@ -4,14 +4,13 @@
 # SPDX-License-Identifier: BSD 2-Clause License
 #
 
-from typing import Any, Dict, Union, List
+from typing import Any, Dict, List, Union
 
 from pipecat.services.adapters.base_llm_adapter import BaseLLMAdapter
 from pipecat.services.adapters.function_schema import FunctionSchema
 
 
-class AnthropicFunctionAdapter (BaseLLMAdapter):
-
+class AnthropicFunctionAdapter(BaseLLMAdapter):
     def _to_anthropic_function_format(self, function: FunctionSchema) -> Dict[str, Any]:
         return {
             "name": function.name,
@@ -23,7 +22,9 @@ class AnthropicFunctionAdapter (BaseLLMAdapter):
             },
         }
 
-    def to_provider_function_format(self, functions_schema: Union[FunctionSchema, List[FunctionSchema]]) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+    def to_provider_function_format(
+        self, functions_schema: Union[FunctionSchema, List[FunctionSchema]]
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """Converts one or multiple function schemas to Anthropic's function-calling format.
 
         :return: Anthropic formatted function call definition.
