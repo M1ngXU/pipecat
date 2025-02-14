@@ -27,20 +27,12 @@ from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
-from pipecat.processors.frameworks.rtvi import (
-    RTVIBotTranscriptionProcessor,
-    RTVISpeakingProcessor,
-    RTVIUserTranscriptionProcessor,
-)
+from pipecat.processors.frameworks.rtvi import RTVIBotTranscriptionProcessor, RTVIObserver
 from pipecat.processors.transcript_processor import TranscriptProcessor
 from pipecat.services.cartesia import CartesiaTTSService
 from pipecat.services.deepgram import DeepgramSTTService
 from pipecat.services.openai import OpenAILLMService
-from pipecat.transports.services.daily import (
-    DailyParams,
-    DailyTransport,
-    DailyTransportMessageFrame,
-)
+from pipecat.transports.services.daily import DailyParams, DailyTransport
 
 load_dotenv(override=True)
 
@@ -172,21 +164,16 @@ async def main():
         async def on_transcript_update(processor, frame):
             await transcript_handler.on_transcript_update(processor, frame)
 
-        # Create processors
-        rtvi_speaking = RTVISpeakingProcessor()  # Speaking state changes
-        rtvi_user_transcription = RTVIUserTranscriptionProcessor()  # User speech transcription
-        rtvi_bot_transcription = RTVIBotTranscriptionProcessor()  # Bot speech transcription
+        rtvi = RTVIBotTranscriptionProcessor()
 
         pipeline = Pipeline(
             [
                 transport.input(),
-                rtvi_speaking,
+                rtvi,
                 stt,
                 transcript.user(),  # User transcripts
-                rtvi_user_transcription,
                 tp,
                 llm,
-                rtvi_bot_transcription,
                 tts,
                 transport.output(),
                 transcript.assistant(),
@@ -200,7 +187,7 @@ async def main():
                 allow_interruptions=False,  # We don't want to interrupt the translator bot
                 enable_metrics=True,
                 enable_usage_metrics=True,
-                report_only_initial_ttfb=True,
+                observers=[RTVIObserver(rtvi)],
             ),
         )
 
