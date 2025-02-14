@@ -8,10 +8,10 @@ import unittest
 
 from openai.types.chat import ChatCompletionToolParam
 
-from pipecat.services.function_calling.adapters.anthropic_adapter import AnthropicFunctionAdapter
-from pipecat.services.function_calling.adapters.gemini_adapter import GeminiFunctionAdapter
-from pipecat.services.function_calling.adapters.open_ai_adapter import OpenAIFunctionAdapter
-from pipecat.services.function_calling.function_schema import FunctionSchema
+from pipecat.services.adapters.implementations.anthropic_adapter import AnthropicFunctionAdapter
+from pipecat.services.adapters.implementations.gemini_adapter import GeminiFunctionAdapter
+from pipecat.services.adapters.implementations.open_ai_adapter import OpenAIFunctionAdapter
+from pipecat.services.adapters.function_schema import FunctionSchema
 
 
 class TestFunctionAdapters(unittest.TestCase):
@@ -55,7 +55,7 @@ class TestFunctionAdapters(unittest.TestCase):
                 },
             },
         )
-        assert OpenAIFunctionAdapter.to_provider_format(self.function_def) == expected
+        assert OpenAIFunctionAdapter().to_provider_function_format(self.function_def) == expected
 
     def test_anthropic_adapter(self):
         """Test Anthropic adapter format transformation."""
@@ -78,7 +78,7 @@ class TestFunctionAdapters(unittest.TestCase):
                 "required": ["location", "format"],
             },
         }
-        assert AnthropicFunctionAdapter.to_provider_format(self.function_def) == expected
+        assert AnthropicFunctionAdapter().to_provider_function_format(self.function_def) == expected
 
     def test_gemini_adapter(self):
         """Test Gemini adapter format transformation."""
@@ -101,6 +101,7 @@ class TestFunctionAdapters(unittest.TestCase):
                 "required": ["location", "format"],
             },
         }
-        assert GeminiFunctionAdapter.to_provider_format(self.function_def) == expected
+        assert GeminiFunctionAdapter().to_provider_function_format(self.function_def) == expected
 
-    # TODO: need to create tests and change the adapters to also convert List of FunctionSchema
+    # TODO: need to create tests and change the implementations to also convert List of FunctionSchema
+    # yep
